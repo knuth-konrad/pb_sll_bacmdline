@@ -1,0 +1,10 @@
+# Executables
+*.exe
+*.dll
+*.sll
+
+# Temp. test &  source files, compiler results, logs
+[Bb]ackup.*
+*.log
+*.tra
+

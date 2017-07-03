@@ -148,6 +148,9 @@ Class cBACmdLine Common
       '           - Check for an additional (alias) parameter having the same
       '           meaning at the same time.
       '           I.e. /f and /file
+      '           30.06.2017
+      '           - FIX: Do NOT exit, if primray key isn't passed, but
+      '           alias instead
       '------------------------------------------------------------------------------
          Local vntValue As Variant
 
@@ -163,19 +166,18 @@ Class cBACmdLine Common
          Try
             vntValue = mcolValues.Item(wsKey)
 
-            If ObjResult = %S_False Then
-               Method = %FALSE
-               Trace Print " -- HasParam wsKey: ObjResult = %S_FALSE"
-               Exit Method
-            Else
+            If ObjResult = %S_Ok Then
                Method = %TRUE
                Exit Method
+            Else
+               Trace Print " -- HasParam wsKey: ObjResult = %S_FALSE"
             End If
          Catch
             Trace Print " -- HasParam (Error): " & Format$(Err) & ", " & Me.ErrString(Err)
             ErrClear
          End Try
 
+         ' msKey not found, try alias instead
          If Not IsMissing(vntKeyAlias) Then
             Local wsKeyAlias As WString
             wsKeyAlias = Variant$$(vntKeyAlias)
@@ -196,6 +198,8 @@ Class cBACmdLine Common
                ErrClear
             End Try
 
+         Else
+            Trace Print " -- HasParam vntKeyAlias: parameter not passed."
          End If
 
       End Method
@@ -226,6 +230,7 @@ Class cBACmdLine Common
          Try
             mcolValues.Add(wsKey, vntValue)
             hResult = ObjResult
+            Trace Print "  - ObjResult: " & Hex$(hResult, 8)
             Method = wsKey
          Catch
             Trace Print " -- ValuesAdd (Error): " & Format$(Err) & ", " & Me.ErrString(Err)
@@ -370,6 +375,9 @@ Class cBACmdLine Common
          Local vntValue As Variant
          Local wsParam, wsParamAlias As WString
 
+         Local i As Dword
+         Local wsKey As WString
+
          Trace On
          Trace Print FuncName$
 
@@ -387,11 +395,11 @@ Class cBACmdLine Common
 
          If IsTrue(bolCaseSensitive) Then
 
-            Local i As Dword
-            Local wsKey As WString
-
             For i = 1 To mcolValues.Count
                mcolValues.Entry i, wsKey, vntValue
+
+               Trace Print " -- GetValueByName(), wsParam, wsKey: " & wsParam & ", " & wsKey
+
                If LCase$(wsParam) = LCase$(wsKey) Then
                   Method = vntValue
                   Exit Method
@@ -400,6 +408,8 @@ Class cBACmdLine Common
 
             If Not IsMissing(vntParamAlias) Then
                wsParamAlias = Variant$$(vntParamAlias)
+
+               Trace Print " -- GetValueByName(), wsParamAlias, wsKey: " & wsParamAlias & ", " & wsKey
 
                For i = 1 To mcolValues.Count
                   mcolValues.Entry i, wsKey, vntValue
@@ -410,30 +420,36 @@ Class cBACmdLine Common
                Next i
             End If
 
-         Else
+         Else     '// If IsTrue(bolCaseSensitive)
 
-            Try
-               Method = mcolValues.Item(wsParam)
-               Exit Method
-            Catch
-               Trace Print " -- GetValueByName() Error: " & Format$(Err) & ", " & Me.ErrString(Err)
-               ErrClear
-            End Try
+
+            For i = 1 To mcolValues.Count
+               mcolValues.Entry i, wsKey, vntValue
+
+               Trace Print " -- GetValueByName(), wsParam, wsKey: " & wsParam & ", " & wsKey
+
+               If wsParam = wsKey Then
+                  Method = vntValue
+                  Exit Method
+               End If
+            Next i
 
             If Not IsMissing(vntParamAlias) Then
                wsParamAlias = Variant$$(vntParamAlias)
 
-               Try
-                  Method = mcolValues.Item(wsParamAlias)
-                  Exit Method
-               Catch
-                  Trace Print " -- GetValueByName() Error: " & Format$(Err) & ", " & Me.ErrString(Err)
-                  ErrClear
-               End Try
+               Trace Print " -- GetValueByName(), wsParamAlias, wsKey: " & wsParamAlias & ", " & wsKey
 
+               For i = 1 To mcolValues.Count
+                  mcolValues.Entry i, wsKey, vntValue
+                  If wsParamAlias = wsKey Then
+                     Method = vntValue
+                     Exit Method
+                  End If
+               Next i
             End If
 
-         End If
+
+         End If   '// If IsTrue(bolCaseSensitive)
 
       End Method
       '------------------------------------------------------------------------------

@@ -17,6 +17,9 @@ Class cBACmdLine Common
    Instance mdwParamID As Dword        ' Collection key of parameter
    Instance mdwValueID As Dword        ' Collection key of value
 
+   ' Read only
+   Instance mwsClassName As WString
+
    Instance mcolValues As IPowerCollection   ' All parameter values. Data type Variant, because
                                              ' a value can be anything
 '------------------------------------------------------------------------------
@@ -27,6 +30,7 @@ Class cBACmdLine Common
       ' Set defaults
       msParamDelimiter = $DELIM_PARAM
       msValueDelimiter = $DELIM_VALUE
+      mwsClassName = "cBACmdLine"
 
       ' Initialize collections
       Let mcolValues = Class "PowerCollection"
@@ -40,6 +44,12 @@ Class cBACmdLine Common
       ' Release resources
       Let mcolValues = Nothing
 
+   End Method
+'------------------------------------------------------------------------------
+
+   Class Method FullMethodName(ByVal wsMethodName As WString) As WString
+      Trace Off
+      Method = "! " & mwsClassName & ":" & wsMethodName
    End Method
 '------------------------------------------------------------------------------
 
@@ -80,6 +90,8 @@ Class cBACmdLine Common
       '------------------------------------------------------------------------------
          Local sPrefix As String
 
+         Trace Off
+
          If Not IsMissing(vntPrefix) Then
             sPrefix = Variant$(vntPrefix)
          End If
@@ -104,8 +116,8 @@ Class cBACmdLine Common
       '------------------------------------------------------------------------------
          Local vntValue As Variant
 
-         Trace On
-         Trace Print FuncName$
+         Trace Off
+         Trace Print Me.FullMethodName(FuncName$)
 
          ' *** Safe guard
          If lIndex < 1 Or lIndex > Me.ValuesCount Then
@@ -154,8 +166,8 @@ Class cBACmdLine Common
       '------------------------------------------------------------------------------
          Local vntValue As Variant
 
-         Trace On
-         Trace Print FuncName$
+         Trace Off
+         Trace Print Me.FullMethodName(FuncName$)
 
          ' *** Safe guard
          If (Len(wsKey) < 1) And (IsMissing(vntKeyAlias)) Then
@@ -221,8 +233,8 @@ Class cBACmdLine Common
       '------------------------------------------------------------------------------
          Local hResult As Long
 
-         Trace On
-         Trace Print FuncName$
+         Trace Off
+         Trace Print Me.FullMethodName(FuncName$)
 
          Trace Print "  - wsKey: " & wsKey
          Trace Print "  - vntValue: " & Variant$(vntValue)
@@ -254,8 +266,8 @@ Class cBACmdLine Common
       '  Changed: -
       '------------------------------------------------------------------------------
 
-         Trace On
-         Trace Print FuncName$
+         Trace Off
+         Trace Print Me.FullMethodName(FuncName$)
 
          Try
             mcolValues.Clear()
@@ -281,8 +293,8 @@ Class cBACmdLine Common
       '  Changed: -
       '------------------------------------------------------------------------------
 
-         Trace On
-         Trace Print FuncName$
+         Trace Off
+         Trace Print Me.FullMethodName(FuncName$)
 
          Try
             Method = mcolValues.Count
@@ -310,8 +322,8 @@ Class cBACmdLine Common
       '------------------------------------------------------------------------------
          Local vntValue As Variant, wsKey As WString
 
-         Trace On
-         Trace Print FuncName$
+         Trace Off
+         Trace Print Me.FullMethodName(FuncName$)
 
          Try
             If lIndex >= 1 And lIndex <= mcolValues.Count Then
@@ -345,8 +357,8 @@ Class cBACmdLine Common
       '  Changed: -
       '------------------------------------------------------------------------------
 
-         Trace On
-         Trace Print FuncName$
+         Trace Off
+         Trace Print Me.FullMethodName(FuncName$)
 
          ' Index within range?
          If lIndex >= 1 And lIndex <= mcolValues.Count Then
@@ -372,14 +384,12 @@ Class cBACmdLine Common
       '  Changed: -
       '------------------------------------------------------------------------------
          Local bolCaseSensitive As Long
-         Local vntValue As Variant
-         Local wsParam, wsParamAlias As WString
-
          Local i As Dword
-         Local wsKey As WString
+         Local vntValue As Variant
+         Local wsParam, wsParamAlias, wsKey As WString
 
-         Trace On
-         Trace Print FuncName$
+         Trace Off
+         Trace Print Me.FullMethodName(FuncName$)
 
          wsParam = sParam
 
@@ -472,8 +482,8 @@ Class cBACmdLine Common
          Local vntValue As Variant
          Dim awsParams() As WString
 
-         Trace On
-         Trace Print FuncName$
+         Trace Off
+         Trace Print Me.FullMethodName(FuncName$)
 
          Trace Print "  - sCmd: " & sCmd
 
